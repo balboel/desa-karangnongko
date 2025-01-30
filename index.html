@@ -325,6 +325,7 @@
         <div class="row">
           <div class="col-lg-12">
             <form id="contactForm" name="sentMessage" novalidate="novalidate">
+              <input type="hidden" name="csrf_token" id="csrf_token" value="<?= bin2hex(random_bytes(32)) ?>">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
@@ -353,7 +354,7 @@
                     <input
                       class="form-control"
                       id="subject"
-                      type="tel"
+                      type="text"
                       placeholder="Perihal *"
                       required="required"
                       data-validation-required-message="Silahkan masukkan perihal terlebih dahulu."

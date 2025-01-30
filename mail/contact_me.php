@@ -20,6 +20,11 @@ if (
     ]);
     exit;
 }
+session_start();
+if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    http_response_code(403);
+    die(json_encode(['success' => false, 'message' => 'CSRF token validation failed']));
+}
 
 // Sanitize input data
 $name = strip_tags(htmlspecialchars($_POST['name']));
@@ -85,3 +90,5 @@ try {
         'errorDetails' => $e->getMessage()
     ]);
 }
+
+

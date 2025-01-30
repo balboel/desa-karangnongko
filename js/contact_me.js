@@ -6,33 +6,39 @@ $(function () {
     },
     submitSuccess: function ($form, event) {
       event.preventDefault();
-      // Get form values
-      var name = $("input#name").val();
-      var email = $("input#email").val();
-      var phone = $("input#phone").val();
-      var message = $("textarea#message").val();
-      var firstName = name.split(" ").slice(0, -1).join(" ");
 
-      // Show processing indicator
-      $("#sendMessageButton").prop("disabled", true);
-      $("#success").html(
-        "<div class='alert alert-info'>Processing your message...</div>"
-      );
-      // Show loading spinner
-      $("#sendMessageButton").html(
-        "<i class='fa fa-spinner fa-spin'></i> Submitting..."
-      );
+      // Get all form values
+      var formData = {
+        name: $("input#name").val().trim(),
+        email: $("input#email").val().trim(),
+        subject: $("input#subject").val().trim(), // or phone if you changed it
+        message: $("textarea#message").val().trim(),
+      };
+
+      // Basic validation
+      if (!formData.name || !formData.email || !formData.message) {
+        return showError("Harap isi semua bidang yang wajib diisi");
+      }
+
+      // Email validation
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        return showError("Format email tidak valid");
+      }
+
+      // Show processing state
+      $("#sendMessageButton")
+        .prop("disabled", true)
+        .html("<i class='fa fa-spinner fa-spin'></i> Mengirim...");
+
+      // Clear previous messages
+      $("#success").html("");
 
       $.ajax({
         url: "../mail/contact_me.php",
         type: "POST",
         dataType: "json",
-        data: {
-          name: name,
-          phone: phone,
-          email: email,
-          message: message,
-        },
+        data: formData,
         cache: false,
         beforeSend: function () {
           // Clear previous messages
