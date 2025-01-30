@@ -190,11 +190,17 @@ header.masthead {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
+  height: 100vh; /* Makes header take full viewport height */
+  min-height: 1080px; /* Minimum height of 1080px */
+  max-height: 1080px; /* Maximum height of 1080px */
+  width: 100%;
+  max-width: 1920px; /* Maximum width of 1920px */
+  margin: 0 auto; /* Center the header if smaller than max-width */
 }
 
 header.masthead .intro-text {
-  padding-top: 150px;
-  padding-bottom: 100px;
+  padding-top: 300px;
+  padding-bottom: 200px;
 }
 
 header.masthead .intro-text .intro-lead-in {
@@ -216,7 +222,7 @@ header.masthead .intro-text .intro-heading {
 @media (min-width: 768px) {
   header.masthead .intro-text {
     padding-top: 300px;
-    padding-bottom: 300px;
+    padding-bottom: 200px;
   }
   header.masthead .intro-text .intro-lead-in {
     font-size: 40px;
