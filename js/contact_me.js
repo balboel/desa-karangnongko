@@ -5,19 +5,24 @@ $(function () {
       // additional error messages or events
     },
     submitSuccess: function ($form, event) {
-      event.preventDefault(); // prevent default submit behaviour
-      // get values from FORM
+      event.preventDefault();
+      // Get form values
       var name = $("input#name").val();
       var email = $("input#email").val();
       var phone = $("input#phone").val();
       var message = $("textarea#message").val();
-      var firstName = name; // For Success/Failure Message
-      // Check for white space in name for Success/Fail message
-      if (firstName.indexOf(" ") >= 0) {
-        firstName = name.split(" ").slice(0, -1).join(" ");
-      }
-      $this = $("#sendMessageButton");
-      $this.prop("disabled", true); // Disable submit button until AJAX call is complete to prevent duplicate messages
+      var firstName = name.split(" ").slice(0, -1).join(" ");
+
+      // Show processing indicator
+      $("#sendMessageButton").prop("disabled", true);
+      $("#success").html(
+        "<div class='alert alert-info'>Processing your message...</div>"
+      );
+      // Show loading spinner
+      $("#sendMessageButton").html(
+        "<i class='fa fa-spinner fa-spin'></i> Submitting..."
+      );
+
       $.ajax({
         url: "../mail/contact_me.php",
         type: "POST",
@@ -29,44 +34,54 @@ $(function () {
           message: message,
         },
         cache: false,
-        success: function () {
-          // Success message
-          $("#success").html("<div class='alert alert-success'>");
-          $("#success > .alert-success")
-            .html(
-              "<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;"
-            )
-            .append("</button>");
-          $("#success > .alert-success").append(
-            "<strong>Your message has been sent. </strong>"
-          );
-          $("#success > .alert-success").append("</div>");
-          //clear all fields
-          $("#contactForm").trigger("reset");
+        beforeSend: function () {
+          // Clear previous messages
+          $("#success").html("");
         },
-        error: function () {
-          // Fail message
-          $("#success").html("<div class='alert alert-danger'>");
-          $("#success > .alert-danger")
-            .html(
-              "<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;"
-            )
-            .append("</button>");
-          $("#success > .alert-danger").append(
-            $("<strong>").text(
-              "Sorry " +
-                firstName +
-                ", it seems that my mail server is not responding. Please try again later!"
-            )
-          );
-          $("#success > .alert-danger").append("</div>");
-          //clear all fields
-          $("#contactForm").trigger("reset");
+        success: function (response) {
+          // Handle success response
+          if (response.success) {
+            $("#success").html("<div class='alert alert-success'>");
+            $("#success > .alert-success")
+              .html(
+                "<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;"
+              )
+              .append("</button>");
+            $("#success > .alert-success").append(
+              "<strong>Message sent successfully!</strong><br>" +
+                "From: " +
+                response.details.name +
+                "<br>" +
+                "Email: " +
+                response.details.email
+            );
+            $("#success > .alert-success").append("</div>");
+            // Clear form after successful submission
+            $("#contactForm").trigger("reset");
+          } else {
+            showError(response.message);
+          }
+        },
+        error: function (xhr, status, error) {
+          // Handle HTTP errors
+          var errorMessage = "Message could not be sent";
+          try {
+            var response = JSON.parse(xhr.responseText);
+            if (response.message) {
+              errorMessage = response.message;
+              if (response.errorDetails) {
+                errorMessage += "<br>Details: " + response.errorDetails;
+              }
+            }
+          } catch (e) {
+            errorMessage = "An unexpected error occurred";
+          }
+          showError(errorMessage);
         },
         complete: function () {
-          setTimeout(function () {
-            $this.prop("disabled", false); // Re-enable submit button when AJAX call is complete
-          }, 1000);
+          // Re-enable submit button after AJAX call
+          $("#sendMessageButton").prop("disabled", false);
+          $("#sendMessageButton").html("Kirim Pesan");
         },
       });
     },
@@ -79,6 +94,18 @@ $(function () {
     e.preventDefault();
     $(this).tab("show");
   });
+
+  // Function to display error messages
+  function showError(message) {
+    $("#success").html("<div class='alert alert-danger'>");
+    $("#success > .alert-danger")
+      .html(
+        "<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button>"
+      )
+      .append("</button>");
+    $("#success > .alert-danger").append("<strong>Error: </strong>" + message);
+    $("#success > .alert-danger").append("</div>");
+  }
 });
 
 /*When clicking on Full hide fail/success boxes */
