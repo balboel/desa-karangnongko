@@ -63,7 +63,7 @@ $mail->Username = $_ENV['GMAIL_ADDRESS']; // Get from .env file
 $mail->Password = $_ENV['GMAIL_APP_PASSWORD']; // Get from .env file
 $mail->SMTPDebug = 2; // Enable debug output
 $mail->setFrom($email_address, $name);
-$mail->addAddress('emailkeee8@gmail.com', 'Administrator');
+$mail->addAddress('your-email@gmail.com', 'Administrator');
 $mail->addReplyTo($email_address, $name);
 $mail->Subject = "Website Contact Form: $name";
 $mail->Body = "You have received a new message from your website contact form.\n\nHere are the details:\nName: $name\nEmail: $email_address\nPhone: $phone\nMessage:\n$message";
